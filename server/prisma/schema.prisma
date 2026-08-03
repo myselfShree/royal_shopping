@@ -1,0 +1,77 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  name      String
+  email     String   @unique
+  password  String
+  role      String   @default("user")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Product {
+  id               Int           @id @default(autoincrement())
+  title            String
+  slug             String        @unique
+  description      String?
+  shortDescription String?
+  price            Float
+  discountPrice    Float?
+  stock            Int           @default(0)
+  sku              String?       @unique
+  brand            String?
+  categoryId       Int?
+  category         Category?     @relation(fields: [categoryId], references: [id])
+  featured         Boolean       @default(false)
+  bestSeller       Boolean       @default(false)
+  newArrival       Boolean       @default(false)
+  status           ProductStatus @default(DRAFT)
+  images           String[]      @default([])
+  imagePublicIds   String[]      @default([])
+  sizes            String[]      @default([])
+  colors           String[]      @default([])
+  tags             String[]      @default([])
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @updatedAt
+}
+
+model Category {
+  id        Int       @id @default(autoincrement())
+  name      String    @unique
+  slug      String    @unique
+  products  Product[]
+  createdAt DateTime  @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+enum ProductStatus {
+  DRAFT
+  ACTIVE
+}
+
+model Order {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  subtotal  Float
+  shipping  Float?
+  total     Float
+  status    String   @default("pending")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model RefreshToken {
+  id        Int      @id @default(autoincrement())
+  token     String   @unique
+  userId    Int
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+}
