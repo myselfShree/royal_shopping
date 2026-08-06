@@ -12,7 +12,9 @@ model User {
   name      String
   email     String   @unique
   password  String
+  phone     String?
   role      String   @default("user")
+  orders    Order[]
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
@@ -28,6 +30,7 @@ model Product {
   stock            Int           @default(0)
   sku              String?       @unique
   brand            String?
+  rating           Float?        @default(0)
   categoryId       Int?
   category         Category?     @relation(fields: [categoryId], references: [id])
   featured         Boolean       @default(false)
@@ -39,6 +42,7 @@ model Product {
   sizes            String[]      @default([])
   colors           String[]      @default([])
   tags             String[]      @default([])
+  orderItems       OrderItem[]
   createdAt        DateTime      @default(now())
   updatedAt        DateTime      @updatedAt
 }
@@ -58,14 +62,34 @@ enum ProductStatus {
 }
 
 model Order {
-  id        Int      @id @default(autoincrement())
-  userId    Int
-  subtotal  Float
-  shipping  Float?
-  total     Float
-  status    String   @default("pending")
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id                Int         @id @default(autoincrement())
+  userId            Int
+  user              User?       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  items             OrderItem[]
+  subtotal          Float
+  shipping          Float?      @default(0)
+  total             Float
+  status            String      @default("pending")
+  shippingAddress   String?
+  phone             String?
+  email             String?
+  paymentMethod     String?
+  notes             String?
+  createdAt         DateTime    @default(now())
+  updatedAt         DateTime    @updatedAt
+}
+
+model OrderItem {
+  id            Int     @id @default(autoincrement())
+  orderId       Int
+  order         Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  productId     Int
+  product       Product @relation(fields: [productId], references: [id], onDelete: Restrict)
+  quantity      Int
+  price         Float
+  selectedColor String?
+  selectedSize  String?
+  createdAt     DateTime @default(now())
 }
 
 model RefreshToken {

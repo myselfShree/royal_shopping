@@ -7,6 +7,8 @@ import cookieParser from 'cookie-parser';
 import healthRoutes from './routes/healthRoutes.js';
 import authRoutes from './routes/authRoutes.js';
 import productRoutes from './routes/productRoutes.js';
+import orderRoutes from './routes/orderRoutes.js';
+import customerRoutes from './routes/customerRoutes.js';
 import { testPrismaConnection } from './prismaClient.js';
 
 const app = express();
@@ -34,6 +36,8 @@ app.use(cookieParser());
 app.use('/api', healthRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/products', productRoutes);
+app.use('/api/orders', orderRoutes);
+app.use('/api/customers', customerRoutes);
 
 // Try Prisma/Postgres connection
 testPrismaConnection().then((res) => {

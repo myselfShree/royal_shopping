@@ -9,11 +9,16 @@ import { AuthProvider } from './context/AuthContext'
 import AdminDashboardPage from './pages/admin/AdminDashboardPage'
 import AdminLoginPage from './pages/admin/AdminLoginPage'
 import ProductsPage from './pages/admin/products/ProductsPage'
+import OrdersPage from './pages/admin/orders/OrdersPage'
+import CustomersPage from './pages/admin/customers/CustomersPage'
+import SettingsPage from './pages/admin/settings/SettingsPage'
 import ShopPage from './pages/ShopPage'
 import ProductDetailPage from './pages/ProductDetailPage'
 import CartPage from './pages/CartPage'
 import WishlistPage from './pages/WishlistPage'
 import CheckoutPage from './pages/CheckoutPage'
+import AboutPage from './pages/AboutPage'
+import ContactPage from './pages/ContactPage'
 import './App.css'
 
 function App() {
@@ -30,19 +35,19 @@ function App() {
             <Route path="/cart" element={<CartPage />} />
             <Route path="/wishlist" element={<WishlistPage />} />
             <Route path="/checkout" element={<CheckoutPage />} />
-            <Route path="/about" element={<div className="px-4 py-20 text-center text-2xl font-semibold">About page coming soon</div>} />
-            <Route path="/contact" element={<div className="px-4 py-20 text-center text-2xl font-semibold">Contact page coming soon</div>} />
+            <Route path="/about" element={<AboutPage />} />
+            <Route path="/contact" element={<ContactPage />} />
             <Route element={<ProtectedRoute />}>
               <Route path="/profile" element={<ProfilePage />} />
             </Route>
             <Route element={<ProtectedRoute adminOnly={true} />}>
               <Route path="/admin" element={<AdminDashboardPage />} />
               <Route path="/admin/products" element={<ProductsPage />} />
+              <Route path="/admin/orders" element={<OrdersPage />} />
+              <Route path="/admin/customers" element={<CustomersPage />} />
+              <Route path="/admin/settings" element={<SettingsPage />} />
             </Route>
             <Route path="/admin/login" element={<AdminLoginPage />} />
-            <Route path="/admin/orders" element={<div className="px-4 py-20 text-center text-2xl font-semibold">Orders management coming soon</div>} />
-            <Route path="/admin/customers" element={<div className="px-4 py-20 text-center text-2xl font-semibold">Customers management coming soon</div>} />
-            <Route path="/admin/settings" element={<div className="px-4 py-20 text-center text-2xl font-semibold">Settings coming soon</div>} />
             <Route path="*" element={<div className="px-4 py-20 text-center text-2xl font-semibold">404 — Page not found</div>} />
           </Route>
         </Routes>
