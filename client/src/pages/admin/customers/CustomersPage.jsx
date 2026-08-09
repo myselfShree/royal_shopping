@@ -17,7 +17,7 @@ export default function CustomersPage() {
     setLoading(true)
     try {
       const res = await api.get('/customers')
-      setCustomers(res.data || [])
+      setCustomers(res.data?.customers || (Array.isArray(res.data) ? res.data : []))
     } catch (error) {
       console.error('Failed to load customers:', error)
       setCustomers([])

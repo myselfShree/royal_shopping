@@ -18,7 +18,7 @@ export default function OrdersPage() {
     setLoading(true)
     try {
       const res = await api.get('/orders')
-      setOrders(res.data || [])
+      setOrders(res.data?.orders || (Array.isArray(res.data) ? res.data : []))
     } catch (error) {
       console.error('Failed to load orders:', error)
       setOrders([])

@@ -1,20 +1,59 @@
-import { FiBox, FiDollarSign, FiPackage, FiUsers } from 'react-icons/fi'
+import { useEffect, useState } from 'react'
+import { FiBox, FiDollarSign, FiPackage, FiUsers, FiArrowRight } from 'react-icons/fi'
+import { Link } from 'react-router-dom'
 import AdminLayout from '../../layouts/AdminLayout'
-
-const stats = [
-  { title: 'Total Products', value: '128', icon: FiBox, accent: 'bg-brand-primary/10 text-brand-primary' },
-  { title: 'Total Customers', value: '3.2k', icon: FiUsers, accent: 'bg-stone-100 text-stone-700' },
-  { title: 'Total Orders', value: '892', icon: FiPackage, accent: 'bg-brand-accent/10 text-brand-primary' },
-  { title: 'Revenue', value: '₹24.8L', icon: FiDollarSign, accent: 'bg-stone-100 text-stone-700' },
-]
-
-const recentOrders = [
-  { id: '#1024', customer: 'Aarav', total: '₹4,999', status: 'Confirmed' },
-  { id: '#1025', customer: 'Meera', total: '₹3,299', status: 'Packed' },
-  { id: '#1026', customer: 'Riya', total: '₹8,999', status: 'Shipped' },
-]
+import api from '../../services/api'
 
 export default function AdminDashboardPage() {
+  const [stats, setStats] = useState({
+    productsCount: 3,
+    customersCount: 0,
+    ordersCount: 0,
+    totalRevenue: 0,
+  })
+  const [recentOrders, setRecentOrders] = useState([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    const fetchDashboardData = async () => {
+      setLoading(true)
+      try {
+        const [prodRes, custRes, orderRes] = await Promise.allSettled([
+          api.get('/products?limit=1'),
+          api.get('/customers'),
+          api.get('/orders?limit=5'),
+        ])
+
+        const prodTotal = prodRes.status === 'fulfilled' ? (prodRes.value.data?.meta?.total || 3) : 3
+        const custData = custRes.status === 'fulfilled' ? (custRes.value.data?.customers || []) : []
+        const orderData = orderRes.status === 'fulfilled' ? (orderRes.value.data?.orders || []) : []
+
+        const revenue = orderData.reduce((acc, curr) => acc + (curr.total || 0), 0)
+
+        setStats({
+          productsCount: prodTotal,
+          customersCount: custData.length,
+          ordersCount: orderData.length,
+          totalRevenue: revenue,
+        })
+        setRecentOrders(orderData)
+      } catch (err) {
+        // ignore
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchDashboardData()
+  }, [])
+
+  const statCards = [
+    { title: 'Total Products', value: stats.productsCount, icon: FiBox, accent: 'bg-brand-primary/10 text-brand-primary' },
+    { title: 'Total Customers', value: stats.customersCount, icon: FiUsers, accent: 'bg-stone-100 text-stone-700' },
+    { title: 'Total Orders', value: stats.ordersCount, icon: FiPackage, accent: 'bg-brand-accent/10 text-brand-primary' },
+    { title: 'Total Revenue', value: `₹${stats.totalRevenue.toFixed(2)}`, icon: FiDollarSign, accent: 'bg-stone-100 text-stone-700' },
+  ]
+
   return (
     <AdminLayout>
       <div className="space-y-6">
@@ -25,7 +64,7 @@ export default function AdminDashboardPage() {
         </div>
 
         <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-          {stats.map((stat) => {
+          {statCards.map((stat) => {
             const Icon = stat.icon
             return (
               <div key={stat.title} className="rounded-[18px] border border-stone-200 bg-white p-5 shadow-[0_10px_30px_-24px_rgba(17,17,17,0.35)]">
@@ -45,6 +84,9 @@ export default function AdminDashboardPage() {
               <h2 className="text-xl font-semibold text-stone-950">Recent orders</h2>
               <p className="mt-2 text-sm text-stone-600">Latest customer orders requiring attention.</p>
             </div>
+            <Link to="/admin/orders" className="flex items-center gap-1 text-sm font-semibold text-brand-primary hover:underline">
+              View all orders <FiArrowRight />
+            </Link>
           </div>
 
           <div className="mt-6 overflow-hidden rounded-[16px] border border-stone-200">
@@ -58,16 +100,26 @@ export default function AdminDashboardPage() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-stone-200 bg-white">
-                {recentOrders.map((order) => (
-                  <tr key={order.id}>
-                    <td className="px-4 py-3 font-medium text-stone-900">{order.id}</td>
-                    <td className="px-4 py-3 text-stone-600">{order.customer}</td>
-                    <td className="px-4 py-3 text-stone-600">{order.total}</td>
-                    <td className="px-4 py-3">
-                      <span className="rounded-full bg-brand-accent/10 px-3 py-1 text-xs font-semibold text-brand-primary">{order.status}</span>
+                {recentOrders.length === 0 ? (
+                  <tr>
+                    <td colSpan={4} className="px-4 py-6 text-center text-stone-500">
+                      No recent orders yet.
                     </td>
                   </tr>
-                ))}
+                ) : (
+                  recentOrders.map((order) => (
+                    <tr key={order.id}>
+                      <td className="px-4 py-3 font-medium text-stone-900">#{order.id}</td>
+                      <td className="px-4 py-3 text-stone-600">{order.user?.name || order.email || 'Guest'}</td>
+                      <td className="px-4 py-3 text-stone-600">₹{order.total?.toFixed(2)}</td>
+                      <td className="px-4 py-3">
+                        <span className="rounded-full bg-brand-accent/10 px-3 py-1 text-xs font-semibold text-brand-primary capitalize">
+                          {order.status}
+                        </span>
+                      </td>
+                    </tr>
+                  ))
+                )}
               </tbody>
             </table>
           </div>
