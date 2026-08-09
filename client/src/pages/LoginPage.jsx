@@ -16,7 +16,7 @@ export default function LoginPage() {
       await login(form)
       navigate('/')
     } catch (err) {
-      setError(err.response?.data?.message || 'Unable to sign in right now.')
+      setError(err.response?.data?.message || err.message || 'Unable to sign in right now.')
     }
   }
 

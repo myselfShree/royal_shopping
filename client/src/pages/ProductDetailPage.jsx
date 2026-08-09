@@ -52,11 +52,13 @@ export default function ProductDetailPage() {
 
       <div className="grid gap-10 lg:grid-cols-[1.1fr_0.9fr]">
         <div className="overflow-hidden rounded-[28px] border border-stone-200 bg-white shadow-[0_20px_60px_-32px_rgba(17,17,17,0.35)]">
-          <img src={product.image} alt={product.title} className="h-[480px] w-full object-cover" />
+          <img src={(product.images && product.images[0]) || product.image || '/placeholder.png'} alt={product.title} className="h-[480px] w-full object-cover" />
         </div>
 
         <div className="rounded-[28px] border border-stone-200 bg-white p-8 shadow-[0_20px_60px_-32px_rgba(17,17,17,0.35)]">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.35em] text-brand-primary">{product.category}</p>
+          <p className="text-[11px] font-semibold uppercase tracking-[0.35em] text-brand-primary">
+            {typeof product.category === 'object' ? (product.category?.name || '') : (product.category || '')}
+          </p>
           <h1 className="mt-3 text-3xl font-semibold text-stone-950">{product.title}</h1>
           <p className="mt-4 text-sm leading-7 text-stone-600">{product.description}</p>
 
@@ -71,7 +73,7 @@ export default function ProductDetailPage() {
           <div className="mt-8">
             <p className="text-sm font-semibold text-stone-800">Color</p>
             <div className="mt-3 flex flex-wrap gap-3">
-              {product.colors.map((color) => (
+              {(Array.isArray(product.colors) ? product.colors : []).map((color) => (
                 <button key={color} onClick={() => setSelectedColor(color)} className={`rounded-full border px-4 py-2 text-sm font-medium transition ${selectedColor === color ? 'border-brand-primary bg-brand-primary text-white' : 'border-stone-200 text-stone-700'}`}>
                   {color}
                 </button>
@@ -82,7 +84,7 @@ export default function ProductDetailPage() {
           <div className="mt-8">
             <p className="text-sm font-semibold text-stone-800">Size</p>
             <div className="mt-3 flex flex-wrap gap-3">
-              {product.sizes.map((size) => (
+              {(Array.isArray(product.sizes) ? product.sizes : []).map((size) => (
                 <button key={size} onClick={() => setSelectedSize(size)} className={`rounded-full border px-4 py-2 text-sm font-medium transition ${selectedSize === size ? 'border-brand-primary bg-brand-primary text-white' : 'border-stone-200 text-stone-700'}`}>
                   {size}
                 </button>

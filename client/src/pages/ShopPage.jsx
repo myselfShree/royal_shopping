@@ -134,7 +134,9 @@ export default function ShopPage() {
             <div className="p-6">
               <div className="flex items-center justify-between gap-4">
                 <div>
-                  <p className="text-[11px] font-semibold uppercase tracking-[0.3em] text-brand-primary">{product.category}</p>
+                  <p className="text-[11px] font-semibold uppercase tracking-[0.3em] text-brand-primary">
+                    {typeof product.category === 'object' ? (product.category?.name || '') : (product.category || '')}
+                  </p>
                   <h2 className="mt-2 text-xl font-semibold text-stone-950">{product.title}</h2>
                 </div>
                 <div className="rounded-full bg-brand-accent/10 px-3 py-1 text-sm font-semibold text-brand-primary">★ {product.rating}</div>

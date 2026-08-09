@@ -16,10 +16,10 @@ export default function AdminLoginPage() {
       if (result.user.role === 'admin') {
         navigate('/admin')
       } else {
-        setError('Use an admin email like admin@royal.com to enter the panel.')
+        setError('This account does not have admin privileges.')
       }
     } catch (err) {
-      setError('Unable to access the admin panel right now.')
+      setError(err.response?.data?.message || err.message || 'Unable to access the admin panel right now.')
     }
   }
 
@@ -28,7 +28,7 @@ export default function AdminLoginPage() {
       <div className="w-full max-w-md rounded-[24px] border border-stone-200 bg-white p-8 shadow-[0_20px_60px_-32px_rgba(17,17,17,0.35)]">
         <p className="text-[11px] font-semibold uppercase tracking-[0.35em] text-brand-primary">Admin access</p>
         <h1 className="mt-3 text-3xl font-semibold text-stone-950">Sign in as admin</h1>
-        <p className="mt-3 text-sm leading-7 text-stone-600">Use an email containing admin@royal.com to preview the dashboard experience.</p>
+        <p className="mt-3 text-sm leading-7 text-stone-600">Sign in with your admin credentials to access the store dashboard.</p>
 
         <form onSubmit={handleSubmit} className="mt-8 space-y-4">
           <div>
