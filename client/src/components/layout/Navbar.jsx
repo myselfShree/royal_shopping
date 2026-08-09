@@ -61,14 +61,19 @@ export default function Navbar() {
               </Link>
               {user.role === 'admin' ? (
                 <Link to="/admin" className="rounded-full bg-brand-primary px-3 py-2 text-sm font-medium text-white transition hover:bg-brand-primary/90">
-                  Admin
+                  Admin Panel
                 </Link>
               ) : null}
             </div>
           ) : (
-            <Link to="/login" className="rounded-full border border-stone-200 px-3 py-2 text-sm font-medium text-stone-700 transition hover:border-brand-primary hover:text-brand-primary">
-              Sign in
-            </Link>
+            <div className="flex items-center gap-2">
+              <Link to="/login" className="rounded-full border border-stone-200 px-3 py-2 text-sm font-medium text-stone-700 transition hover:border-brand-primary hover:text-brand-primary">
+                Sign in
+              </Link>
+              <Link to="/admin/login" className="rounded-full bg-stone-950 px-3.5 py-2 text-xs font-semibold text-white transition hover:bg-brand-primary">
+                Admin Panel
+              </Link>
+            </div>
           )}
           <button className="rounded-full border border-stone-200 p-2.5 text-stone-700 transition hover:border-brand-primary hover:text-brand-primary md:hidden">
             <FiMenu size={17} />

@@ -63,7 +63,7 @@ enum ProductStatus {
 
 model Order {
   id                Int         @id @default(autoincrement())
-  userId            Int
+  userId            Int?
   user              User?       @relation(fields: [userId], references: [id], onDelete: Cascade)
   items             OrderItem[]
   subtotal          Float

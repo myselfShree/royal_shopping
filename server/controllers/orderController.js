@@ -3,7 +3,7 @@ import prisma from '../prismaClient.js'
 export const createOrder = async (req, res) => {
   try {
     const { items, subtotal, shipping, total, shippingAddress, phone, email, paymentMethod, notes } = req.body
-    const userId = req.user?.id
+    const rawUserId = req.user?.userId || req.user?.id
 
     if (!items || items.length === 0) {
       return res.status(400).json({ message: 'Order must contain at least one item' })
@@ -13,28 +13,33 @@ export const createOrder = async (req, res) => {
       return res.status(400).json({ message: 'Shipping address, phone, and email are required' })
     }
 
-    const order = await prisma.order.create({
-      data: {
-        userId: userId || null,
-        subtotal,
-        shipping: shipping || 0,
-        total,
-        shippingAddress,
-        phone,
-        email,
-        paymentMethod: paymentMethod || 'cod',
-        notes,
-        status: 'pending',
-        items: {
-          create: items.map((item) => ({
-            productId: item.productId,
-            quantity: item.quantity,
-            price: item.price,
-            selectedColor: item.selectedColor,
-            selectedSize: item.selectedSize,
-          })),
-        },
+    const orderData = {
+      subtotal: Number(subtotal),
+      shipping: Number(shipping) || 0,
+      total: Number(total),
+      shippingAddress,
+      phone,
+      email,
+      paymentMethod: paymentMethod || 'cod',
+      notes: notes || null,
+      status: 'pending',
+      items: {
+        create: items.map((item) => ({
+          productId: Number(item.productId || item.id),
+          quantity: Number(item.quantity) || 1,
+          price: Number(item.price || item.discountPrice || 0),
+          selectedColor: item.selectedColor || null,
+          selectedSize: item.selectedSize || null,
+        })),
       },
+    }
+
+    if (rawUserId && !Number.isNaN(Number(rawUserId))) {
+      orderData.userId = Number(rawUserId)
+    }
+
+    const order = await prisma.order.create({
+      data: orderData,
       include: {
         items: {
           include: {

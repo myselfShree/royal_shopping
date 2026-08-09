@@ -39,7 +39,7 @@ async function seed() {
         bestSeller: true,
         newArrival: false,
         status: 'ACTIVE',
-        images: [],
+        images: ['https://images.unsplash.com/photo-1595777457583-95e059d581b8?w=800&auto=format&fit=crop&q=80'],
         sizes: ['S', 'M', 'L'],
         colors: ['Black', 'Nude'],
         tags: ['evening', 'luxury', 'dress'],
@@ -58,7 +58,7 @@ async function seed() {
         bestSeller: true,
         newArrival: false,
         status: 'ACTIVE',
-        images: [],
+        images: ['https://images.unsplash.com/photo-1544441893-675973e31985?w=800&auto=format&fit=crop&q=80'],
         sizes: ['M', 'L', 'XL'],
         colors: ['Camel', 'Olive'],
         tags: ['jacket', 'tailored', 'formal'],
@@ -77,7 +77,7 @@ async function seed() {
         bestSeller: false,
         newArrival: true,
         status: 'ACTIVE',
-        images: [],
+        images: ['https://images.unsplash.com/photo-1576566588028-4147f3842f27?w=800&auto=format&fit=crop&q=80'],
         sizes: ['S', 'M', 'L'],
         colors: ['Grey', 'Ivory'],
         tags: ['knit', 'cozy', 'sweater'],
@@ -99,7 +99,9 @@ async function seed() {
       const categoryName = item.category
       await prisma.product.upsert({
         where: { slug },
-        update: {},
+        update: {
+          images: item.images,
+        },
         create: {
           ...item,
           slug,
