@@ -11,6 +11,7 @@ import orderRoutes from './routes/orderRoutes.js';
 import customerRoutes from './routes/customerRoutes.js';
 import settingsRoutes from './routes/settingsRoutes.js';
 import couponRoutes from './routes/couponRoutes.js';
+import categoryRoutes from './routes/categoryRoutes.js';
 import { testPrismaConnection } from './prismaClient.js';
 
 const app = express();
@@ -39,6 +40,7 @@ app.use('/api/orders', orderRoutes);
 app.use('/api/customers', customerRoutes);
 app.use('/api/settings', settingsRoutes);
 app.use('/api/coupons', couponRoutes);
+app.use('/api/categories', categoryRoutes);
 
 // Try Prisma/Postgres connection
 testPrismaConnection().then((res) => {

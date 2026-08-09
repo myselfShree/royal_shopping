@@ -15,7 +15,7 @@ const faqs = [
     category: 'Returns & Refunds',
     icon: FiRefreshCw,
     items: [
-      { q: 'What is your return policy?', a: 'We offer a 15-day hassle-free return and exchange policy on all unworn items with original tags intact.' },
+      { q: 'What is your return policy?', a: 'We offer a 7-day hassle-free return and exchange policy on all unworn items with original tags intact.' },
       { q: 'How quickly are refunds processed?', a: 'Refunds are initiated within 48 hours of return quality check and credited back to your original payment method or bank account.' },
     ],
   },

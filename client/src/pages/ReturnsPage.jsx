@@ -8,7 +8,7 @@ export default function ReturnsPage() {
         <p className="text-[11px] font-semibold uppercase tracking-[0.35em] text-brand-primary">Hassle-Free Policy</p>
         <h1 className="mt-3 text-4xl font-semibold text-stone-950 sm:text-5xl">Returns & Exchange Policy</h1>
         <p className="mt-4 max-w-2xl text-base leading-8 text-stone-600">
-          We want you to love everything you order from Royal Shopping. If a fit isn't right, enjoy our 15-day complimentary return policy.
+          We want you to love everything you order from Royal Shopping. If a fit isn't right, enjoy our 7-day complimentary return policy.
         </p>
 
         {/* 3 Step Return Guide */}
@@ -16,7 +16,7 @@ export default function ReturnsPage() {
           <div className="rounded-[20px] border border-stone-200 bg-stone-50 p-6">
             <div className="flex h-10 w-10 items-center justify-center rounded-full bg-brand-primary text-white font-semibold">1</div>
             <h3 className="mt-4 font-semibold text-stone-950 text-lg">Request Return</h3>
-            <p className="mt-2 text-sm leading-6 text-stone-600">Contact support or submit a return request within 15 days of delivery.</p>
+            <p className="mt-2 text-sm leading-6 text-stone-600">Contact support or submit a return request within 7 days of delivery.</p>
           </div>
 
           <div className="rounded-[20px] border border-stone-200 bg-stone-50 p-6">

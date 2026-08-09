@@ -1,4 +1,5 @@
 import HeroSection from '../components/home/HeroSection'
+import CategoryCircleScroll from '../components/home/CategoryCircleScroll'
 import SectionHeading from '../components/common/SectionHeading'
 import CategoryCard from '../components/home/CategoryCard'
 import ProductCard from '../components/home/ProductCard'
@@ -21,6 +22,7 @@ export default function HomePage() {
   return (
     <div>
       <HeroSection />
+      <CategoryCircleScroll />
 
       <PageSection>
         <SectionHeading

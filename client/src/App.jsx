@@ -15,6 +15,7 @@ import ProductsPage from './pages/admin/products/ProductsPage'
 import OrdersPage from './pages/admin/orders/OrdersPage'
 import CustomersPage from './pages/admin/customers/CustomersPage'
 import SettingsPage from './pages/admin/settings/SettingsPage'
+import CategoriesPage from './pages/admin/categories/CategoriesPage'
 
 import ShopPage from './pages/ShopPage'
 import ProductDetailPage from './pages/ProductDetailPage'
@@ -31,6 +32,7 @@ import OurStoryPage from './pages/OurStoryPage'
 import PressPage from './pages/PressPage'
 import OrderTrackingPage from './pages/OrderTrackingPage'
 import SizeGuidePage from './pages/SizeGuidePage'
+import MyOrdersPage from './pages/MyOrdersPage'
 
 import './App.css'
 
@@ -52,7 +54,8 @@ function App() {
               <Route path="/about" element={<AboutPage />} />
               <Route path="/contact" element={<ContactPage />} />
 
-              {/* New Interactive Content & Support Pages */}
+              {/* Customer Order History & Support Pages */}
+              <Route path="/my-orders" element={<MyOrdersPage />} />
               <Route path="/careers" element={<CareerPage />} />
               <Route path="/blog" element={<BlogPage />} />
               <Route path="/help" element={<HelpCenterPage />} />
@@ -68,6 +71,7 @@ function App() {
               <Route element={<ProtectedRoute adminOnly={true} />}>
                 <Route path="/admin" element={<AdminDashboardPage />} />
                 <Route path="/admin/products" element={<ProductsPage />} />
+                <Route path="/admin/categories" element={<CategoriesPage />} />
                 <Route path="/admin/orders" element={<OrdersPage />} />
                 <Route path="/admin/customers" element={<CustomersPage />} />
                 <Route path="/admin/settings" element={<SettingsPage />} />
