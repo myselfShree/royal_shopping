@@ -99,3 +99,44 @@ model RefreshToken {
   expiresAt DateTime
   createdAt DateTime @default(now())
 }
+
+model SiteSettings {
+  id              Int      @id @default(1)
+  siteName        String   @default("Royal Shopping")
+  tagline         String   @default("Luxury essentials for every occasion.")
+  logoUrl         String?
+  heroTitle       String   @default("Discover elevated style with Royal Shopping.")
+  heroSubtitle    String   @default("Elevate your wardrobe with timeless dresses, statement jackets, and carefully selected home accents designed for modern luxury.")
+  heroImageUrl    String?
+  heroCtaText     String   @default("Shop now")
+  whatsappNumber  String   @default("+919876543210")
+  instagramUrl    String?
+  facebookUrl     String?
+  twitterUrl      String?
+  pinterestUrl    String?
+  contactEmail    String   @default("hello@royalshopping.com")
+  contactPhone    String   @default("+91 98765 43210")
+  contactAddress  String   @default("123 Royal Boulevard, Suite 400, Mumbai, India")
+  updatedAt       DateTime @updatedAt
+}
+
+model Review {
+  id        Int      @id @default(autoincrement())
+  productId Int
+  userName  String
+  userEmail String?
+  rating    Int      @default(5)
+  comment   String
+  createdAt DateTime @default(now())
+}
+
+model Coupon {
+  id         Int      @id @default(autoincrement())
+  code       String   @unique
+  discount   Float    // percentage or fixed amount
+  type       String   @default("percentage") // percentage | fixed
+  minSpend   Float?   @default(0)
+  active     Boolean  @default(true)
+  createdAt  DateTime @default(now())
+}
+

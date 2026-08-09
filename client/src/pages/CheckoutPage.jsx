@@ -12,6 +12,11 @@ export default function CheckoutPage() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
 
+  const [couponCode, setCouponCode] = useState('')
+  const [appliedCoupon, setAppliedCoupon] = useState(null)
+  const [couponMsg, setCouponMsg] = useState({ text: '', type: '' })
+  const [validatingCoupon, setValidatingCoupon] = useState(false)
+
   const [form, setForm] = useState({
     fullName: user?.name || '',
     email: user?.email || '',
@@ -22,8 +27,36 @@ export default function CheckoutPage() {
     notes: '',
   })
 
+  const discountAmount = useMemo(() => {
+    if (!appliedCoupon) return 0
+    if (appliedCoupon.type === 'percentage') {
+      return (subtotal * appliedCoupon.discount) / 100
+    }
+    return Math.min(subtotal, appliedCoupon.discount)
+  }, [appliedCoupon, subtotal])
+
   const shipping = useMemo(() => (subtotal > 0 ? 0 : 0), [subtotal])
-  const total = subtotal + shipping
+  const total = Math.max(0, subtotal - discountAmount + shipping)
+
+  const handleApplyCoupon = async (e) => {
+    if (e) e.preventDefault()
+    if (!couponCode.trim()) return
+    setValidatingCoupon(true)
+    setCouponMsg({ text: '', type: '' })
+
+    try {
+      const res = await api.post('/coupons/validate', { code: couponCode.trim(), subtotal })
+      if (res.data && res.data.valid) {
+        setAppliedCoupon(res.data)
+        setCouponMsg({ text: res.data.message || `Coupon ${res.data.code} applied!`, type: 'success' })
+      }
+    } catch (err) {
+      setAppliedCoupon(null)
+      setCouponMsg({ text: err.response?.data?.message || 'Invalid coupon code', type: 'error' })
+    } finally {
+      setValidatingCoupon(false)
+    }
+  }
 
   const handleChange = (e) => {
     const { name, value } = e.target
@@ -59,7 +92,7 @@ export default function CheckoutPage() {
         phone: form.phone,
         email: form.email,
         paymentMethod: 'cod',
-        notes: form.notes,
+        notes: form.notes + (appliedCoupon ? ` (Applied Coupon: ${appliedCoupon.code})` : ''),
       }
 
       const res = await api.post('/orders', orderData)
@@ -214,11 +247,52 @@ export default function CheckoutPage() {
             ))}
           </div>
 
-          <div className="mt-6 space-y-3 text-sm text-stone-600">
+          {/* Coupon Code Section */}
+          <div className="mt-6 border-t border-stone-200 pt-4">
+            <p className="text-xs font-semibold text-stone-700 mb-2">Have a Promo Code?</p>
+            <div className="flex gap-2">
+              <input
+                type="text"
+                value={couponCode}
+                onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
+                placeholder="e.g. ROYAL10"
+                className="w-full rounded-[12px] border border-stone-200 px-3 py-2 text-xs uppercase outline-none focus:border-brand-primary"
+              />
+              <button
+                type="button"
+                onClick={handleApplyCoupon}
+                disabled={validatingCoupon}
+                className="rounded-[12px] bg-brand-primary px-4 py-2 text-xs font-semibold text-white hover:bg-brand-primary/90 disabled:opacity-50"
+              >
+                {validatingCoupon ? '...' : 'Apply'}
+              </button>
+            </div>
+            {couponMsg.text && (
+              <p className={`mt-2 text-xs ${couponMsg.type === 'success' ? 'text-green-700' : 'text-red-600'}`}>
+                {couponMsg.text}
+              </p>
+            )}
+            <div className="mt-2 flex flex-wrap gap-1">
+              <button type="button" onClick={() => { setCouponCode('ROYAL10'); handleApplyCoupon(); }} className="text-[10px] bg-stone-100 px-2 py-1 rounded text-stone-600 hover:bg-brand-primary hover:text-white">
+                ROYAL10 (10% OFF)
+              </button>
+              <button type="button" onClick={() => { setCouponCode('WELCOME20'); handleApplyCoupon(); }} className="text-[10px] bg-stone-100 px-2 py-1 rounded text-stone-600 hover:bg-brand-primary hover:text-white">
+                WELCOME20 (20% OFF)
+              </button>
+            </div>
+          </div>
+
+          <div className="mt-6 space-y-3 text-sm text-stone-600 border-t border-stone-200 pt-4">
             <div className="flex items-center justify-between">
               <span>Subtotal</span>
               <span className="font-medium text-stone-900">₹{subtotal.toFixed(2)}</span>
             </div>
+            {discountAmount > 0 && (
+              <div className="flex items-center justify-between text-green-700 font-medium">
+                <span>Discount ({appliedCoupon?.code})</span>
+                <span>-₹{discountAmount.toFixed(2)}</span>
+              </div>
+            )}
             <div className="flex items-center justify-between">
               <span>Shipping</span>
               <span className="font-medium text-stone-900">₹{shipping.toFixed(2)}</span>

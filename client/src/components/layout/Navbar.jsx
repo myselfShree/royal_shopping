@@ -2,11 +2,13 @@ import { Link, NavLink } from 'react-router-dom'
 import { FiHeart, FiMenu, FiSearch, FiShoppingBag } from 'react-icons/fi'
 import { useAuth } from '../../context/AuthContext'
 import { useCart } from '../../context/CartContext'
+import { useSettings } from '../../context/SettingsContext'
 
 const navigation = [
   { name: 'Home', href: '/' },
   { name: 'Shop', href: '/shop' },
   { name: 'About', href: '/about' },
+  { name: 'Blog', href: '/blog' },
   { name: 'Contact', href: '/contact' },
 ]
 
@@ -15,17 +17,26 @@ export default function Navbar() {
   const user = auth?.user
   const cart = useCart()
   const totalItems = cart?.totalItems || 0
+  const { settings } = useSettings()
 
   return (
     <header className="sticky top-0 z-50 border-b border-stone-200/80 bg-white/90 backdrop-blur-xl">
       <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-4 sm:px-6 lg:px-8">
         <Link to="/" className="flex items-center gap-3">
-          <div className="flex h-11 w-11 items-center justify-center rounded-full bg-brand-primary text-base font-semibold text-white shadow-[0_10px_30px_-15px_rgba(139,0,0,0.6)]">
-            R
-          </div>
+          {settings.logoUrl ? (
+            <img src={settings.logoUrl} alt={settings.siteName || 'Logo'} className="h-10 w-auto object-contain" />
+          ) : (
+            <div className="flex h-11 w-11 items-center justify-center rounded-full bg-brand-primary text-base font-semibold text-white shadow-[0_10px_30px_-15px_rgba(139,0,0,0.6)]">
+              {(settings.siteName || 'Royal')[0]}
+            </div>
+          )}
           <div>
-            <p className="text-[11px] font-semibold uppercase tracking-[0.35em] text-brand-accent">Royal</p>
-            <p className="text-base font-semibold text-stone-900">Shopping</p>
+            <p className="text-[11px] font-semibold uppercase tracking-[0.35em] text-brand-accent">
+              {(settings.siteName || 'Royal Shopping').split(' ')[0]}
+            </p>
+            <p className="text-base font-semibold text-stone-900">
+              {(settings.siteName || 'Royal Shopping').split(' ').slice(1).join(' ') || 'Shopping'}
+            </p>
           </div>
         </Link>
 
@@ -35,7 +46,7 @@ export default function Navbar() {
               key={item.name}
               to={item.href}
               className={({ isActive }) =>
-                `text-sm font-medium transition ${isActive ? 'text-brand-primary' : 'text-stone-600 hover:text-brand-primary'}`
+                `text-sm font-medium transition ${isActive ? 'text-brand-primary font-semibold' : 'text-stone-600 hover:text-brand-primary'}`
               }
             >
               {item.name}
@@ -44,9 +55,9 @@ export default function Navbar() {
         </nav>
 
         <div className="flex items-center gap-2 sm:gap-3">
-          <button className="hidden rounded-full border border-stone-200 p-2.5 text-stone-700 transition hover:border-brand-primary hover:text-brand-primary sm:block">
+          <Link to="/shop" className="hidden rounded-full border border-stone-200 p-2.5 text-stone-700 transition hover:border-brand-primary hover:text-brand-primary sm:block">
             <FiSearch size={17} />
-          </button>
+          </Link>
           <Link to="/wishlist" className="rounded-full border border-stone-200 p-2.5 text-stone-700 transition hover:border-brand-primary hover:text-brand-primary">
             <FiHeart size={17} />
           </Link>
@@ -75,9 +86,6 @@ export default function Navbar() {
               </Link>
             </div>
           )}
-          <button className="rounded-full border border-stone-200 p-2.5 text-stone-700 transition hover:border-brand-primary hover:text-brand-primary md:hidden">
-            <FiMenu size={17} />
-          </button>
         </div>
       </div>
     </header>

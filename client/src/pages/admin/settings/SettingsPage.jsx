@@ -1,64 +1,50 @@
-import { useState } from 'react'
-import { FiSave, FiRefreshCw } from 'react-icons/fi'
+import { useState, useEffect } from 'react'
+import { FiSave, FiRefreshCw, FiImage, FiGlobe, FiMessageSquare } from 'react-icons/fi'
 import AdminLayout from '../../../layouts/AdminLayout'
+import { useSettings } from '../../../context/SettingsContext'
 
 export default function SettingsPage() {
-  const [settings, setSettings] = useState({
-    storeName: 'Royal Shopping',
-    storeEmail: 'support@royalshopping.com',
-    storePhone: '+91 (800) 123-4567',
-    storeAddress: '123 Shopping Street, New Delhi, India 110001',
-    currency: 'INR',
-    shippingCost: '0',
-    taxRate: '0',
-    maintenanceMode: false,
-  })
-
+  const { settings: globalSettings, updateSettingsState } = useSettings()
+  const [form, setForm] = useState(globalSettings)
+  const [activeTab, setActiveTab] = useState('brand')
   const [feedback, setFeedback] = useState({ message: '', type: 'success' })
   const [isSaving, setIsSaving] = useState(false)
 
+  useEffect(() => {
+    if (globalSettings) {
+      setForm(globalSettings)
+    }
+  }, [globalSettings])
+
   const handleChange = (e) => {
-    const { name, value, type, checked } = e.target
-    setSettings((prev) => ({
-      ...prev,
-      [name]: type === 'checkbox' ? checked : value,
-    }))
+    const { name, value } = e.target
+    setForm((prev) => ({ ...prev, [name]: value }))
   }
 
-  const handleSave = async () => {
+  const handleSave = async (e) => {
+    e.preventDefault()
     setIsSaving(true)
+    setFeedback({ message: '', type: '' })
     try {
-      // In a real app, you'd save to backend
-      console.log('Settings saved:', settings)
-      setFeedback({ message: 'Settings saved successfully', type: 'success' })
-      setTimeout(() => setFeedback({ message: '', type: '' }), 3000)
+      await updateSettingsState(form)
+      setFeedback({ message: 'Brand & store settings updated live across website!', type: 'success' })
+      setTimeout(() => setFeedback({ message: '', type: '' }), 4000)
     } catch (error) {
-      setFeedback({ message: 'Failed to save settings', type: 'error' })
+      setFeedback({ message: error.message || 'Failed to update settings', type: 'error' })
     } finally {
       setIsSaving(false)
     }
-  }
-
-  const handleReset = () => {
-    setSettings({
-      storeName: 'Royal Shopping',
-      storeEmail: 'support@royalshopping.com',
-      storePhone: '+91 (800) 123-4567',
-      storeAddress: '123 Shopping Street, New Delhi, India 110001',
-      currency: 'INR',
-      shippingCost: '0',
-      taxRate: '0',
-      maintenanceMode: false,
-    })
   }
 
   return (
     <AdminLayout>
       <div className="space-y-6">
         <div>
-          <p className="text-[11px] font-semibold uppercase tracking-[0.35em] text-brand-primary">Configuration</p>
-          <h1 className="mt-2 text-3xl font-semibold text-stone-950">Settings</h1>
-          <p className="mt-3 max-w-2xl text-sm leading-7 text-stone-600">Manage store configuration, shipping, taxes, and general settings.</p>
+          <p className="text-[11px] font-semibold uppercase tracking-[0.35em] text-brand-primary">Brand & Store Customization</p>
+          <h1 className="mt-2 text-3xl font-semibold text-stone-950">Settings & Appearance</h1>
+          <p className="mt-3 max-w-2xl text-sm leading-7 text-stone-600">
+            Customize your brand logo, hero banner titles, WhatsApp number, and social media links.
+          </p>
         </div>
 
         {feedback.message && (
@@ -67,170 +53,237 @@ export default function SettingsPage() {
           </div>
         )}
 
-        <div className="rounded-[20px] border border-stone-200 bg-white p-8 shadow-[0_20px_60px_-32px_rgba(17,17,17,0.35)]">
-          <div className="space-y-6">
-            <div>
-              <h2 className="text-xl font-semibold text-stone-950">Store Information</h2>
-              <div className="mt-6 grid gap-4 md:grid-cols-2">
+        {/* Navigation Tabs */}
+        <div className="flex border-b border-stone-200">
+          <button
+            type="button"
+            onClick={() => setActiveTab('brand')}
+            className={`flex items-center gap-2 border-b-2 px-6 py-3 text-sm font-semibold transition ${activeTab === 'brand' ? 'border-brand-primary text-brand-primary' : 'border-transparent text-stone-500 hover:text-stone-900'}`}
+          >
+            <FiGlobe size={16} /> Brand & Logo
+          </button>
+          <button
+            type="button"
+            onClick={() => setActiveTab('banner')}
+            className={`flex items-center gap-2 border-b-2 px-6 py-3 text-sm font-semibold transition ${activeTab === 'banner' ? 'border-brand-primary text-brand-primary' : 'border-transparent text-stone-500 hover:text-stone-900'}`}
+          >
+            <FiImage size={16} /> Hero Banner
+          </button>
+          <button
+            type="button"
+            onClick={() => setActiveTab('social')}
+            className={`flex items-center gap-2 border-b-2 px-6 py-3 text-sm font-semibold transition ${activeTab === 'social' ? 'border-brand-primary text-brand-primary' : 'border-transparent text-stone-500 hover:text-stone-900'}`}
+          >
+            <FiMessageSquare size={16} /> WhatsApp & Social Media
+          </button>
+        </div>
+
+        <form onSubmit={handleSave} className="rounded-[20px] border border-stone-200 bg-white p-8 shadow-[0_20px_60px_-32px_rgba(17,17,17,0.35)]">
+          {/* TAB 1: Brand & Logo */}
+          {activeTab === 'brand' && (
+            <div className="space-y-6">
+              <h2 className="text-xl font-semibold text-stone-950">Brand Identity</h2>
+              <div className="grid gap-4 md:grid-cols-2">
                 <div>
                   <label className="block text-sm font-medium text-stone-700 mb-2">Store Name</label>
                   <input
                     type="text"
-                    name="storeName"
-                    value={settings.storeName}
+                    name="siteName"
+                    value={form.siteName || ''}
                     onChange={handleChange}
-                    className="w-full rounded-[12px] border border-stone-200 px-4 py-3 text-sm outline-none transition focus:border-brand-primary focus:ring-1 focus:ring-brand-primary"
+                    className="w-full rounded-[12px] border border-stone-200 px-4 py-3 text-sm outline-none transition focus:border-brand-primary"
+                    placeholder="e.g. Royal Shopping"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-stone-700 mb-2">Email</label>
+                  <label className="block text-sm font-medium text-stone-700 mb-2">Brand Tagline</label>
+                  <input
+                    type="text"
+                    name="tagline"
+                    value={form.tagline || ''}
+                    onChange={handleChange}
+                    className="w-full rounded-[12px] border border-stone-200 px-4 py-3 text-sm outline-none transition focus:border-brand-primary"
+                    placeholder="e.g. Luxury essentials for every occasion."
+                  />
+                </div>
+
+                <div className="md:col-span-2">
+                  <label className="block text-sm font-medium text-stone-700 mb-2">Brand Logo Image URL</label>
+                  <input
+                    type="text"
+                    name="logoUrl"
+                    value={form.logoUrl || ''}
+                    onChange={handleChange}
+                    className="w-full rounded-[12px] border border-stone-200 px-4 py-3 text-sm outline-none transition focus:border-brand-primary"
+                    placeholder="https://example.com/logo.png (leave blank for text logo)"
+                  />
+                  {form.logoUrl ? (
+                    <div className="mt-3 flex items-center gap-3">
+                      <span className="text-xs text-stone-500">Preview:</span>
+                      <img src={form.logoUrl} alt="Logo Preview" className="h-10 object-contain rounded border border-stone-200 bg-stone-50 p-1" />
+                    </div>
+                  ) : null}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* TAB 2: Hero Banner */}
+          {activeTab === 'banner' && (
+            <div className="space-y-6">
+              <h2 className="text-xl font-semibold text-stone-950">Homepage Hero Banner</h2>
+              <div className="grid gap-4 md:grid-cols-2">
+                <div className="md:col-span-2">
+                  <label className="block text-sm font-medium text-stone-700 mb-2">Banner Headline Title</label>
+                  <input
+                    type="text"
+                    name="heroTitle"
+                    value={form.heroTitle || ''}
+                    onChange={handleChange}
+                    className="w-full rounded-[12px] border border-stone-200 px-4 py-3 text-sm outline-none transition focus:border-brand-primary"
+                  />
+                </div>
+
+                <div className="md:col-span-2">
+                  <label className="block text-sm font-medium text-stone-700 mb-2">Banner Subtitle</label>
+                  <textarea
+                    name="heroSubtitle"
+                    value={form.heroSubtitle || ''}
+                    onChange={handleChange}
+                    rows="3"
+                    className="w-full rounded-[12px] border border-stone-200 px-4 py-3 text-sm outline-none transition focus:border-brand-primary resize-none"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-stone-700 mb-2">Background Banner Image URL</label>
+                  <input
+                    type="text"
+                    name="heroImageUrl"
+                    value={form.heroImageUrl || ''}
+                    onChange={handleChange}
+                    className="w-full rounded-[12px] border border-stone-200 px-4 py-3 text-sm outline-none transition focus:border-brand-primary"
+                    placeholder="https://images.unsplash.com/..."
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-stone-700 mb-2">CTA Button Text</label>
+                  <input
+                    type="text"
+                    name="heroCtaText"
+                    value={form.heroCtaText || ''}
+                    onChange={handleChange}
+                    className="w-full rounded-[12px] border border-stone-200 px-4 py-3 text-sm outline-none transition focus:border-brand-primary"
+                    placeholder="Shop now"
+                  />
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* TAB 3: Social & WhatsApp */}
+          {activeTab === 'social' && (
+            <div className="space-y-6">
+              <h2 className="text-xl font-semibold text-stone-950">WhatsApp & Social Media Accounts</h2>
+              <div className="grid gap-4 md:grid-cols-2">
+                <div>
+                  <label className="block text-sm font-medium text-stone-700 mb-2">WhatsApp Contact Number</label>
+                  <input
+                    type="text"
+                    name="whatsappNumber"
+                    value={form.whatsappNumber || ''}
+                    onChange={handleChange}
+                    className="w-full rounded-[12px] border border-stone-200 px-4 py-3 text-sm outline-none transition focus:border-brand-primary"
+                    placeholder="+91 98765 43210"
+                  />
+                  <p className="mt-1 text-xs text-stone-500">Powers the floating WhatsApp button on all pages.</p>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-stone-700 mb-2">Instagram URL</label>
+                  <input
+                    type="text"
+                    name="instagramUrl"
+                    value={form.instagramUrl || ''}
+                    onChange={handleChange}
+                    className="w-full rounded-[12px] border border-stone-200 px-4 py-3 text-sm outline-none transition focus:border-brand-primary"
+                    placeholder="https://instagram.com/yourhandle"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-stone-700 mb-2">Facebook URL</label>
+                  <input
+                    type="text"
+                    name="facebookUrl"
+                    value={form.facebookUrl || ''}
+                    onChange={handleChange}
+                    className="w-full rounded-[12px] border border-stone-200 px-4 py-3 text-sm outline-none transition focus:border-brand-primary"
+                    placeholder="https://facebook.com/yourpage"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-stone-700 mb-2">Twitter / X URL</label>
+                  <input
+                    type="text"
+                    name="twitterUrl"
+                    value={form.twitterUrl || ''}
+                    onChange={handleChange}
+                    className="w-full rounded-[12px] border border-stone-200 px-4 py-3 text-sm outline-none transition focus:border-brand-primary"
+                    placeholder="https://twitter.com/yourhandle"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-stone-700 mb-2">Support Email</label>
                   <input
                     type="email"
-                    name="storeEmail"
-                    value={settings.storeEmail}
+                    name="contactEmail"
+                    value={form.contactEmail || ''}
                     onChange={handleChange}
-                    className="w-full rounded-[12px] border border-stone-200 px-4 py-3 text-sm outline-none transition focus:border-brand-primary focus:ring-1 focus:ring-brand-primary"
+                    className="w-full rounded-[12px] border border-stone-200 px-4 py-3 text-sm outline-none transition focus:border-brand-primary"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-stone-700 mb-2">Phone</label>
+                  <label className="block text-sm font-medium text-stone-700 mb-2">Support Phone</label>
                   <input
                     type="tel"
-                    name="storePhone"
-                    value={settings.storePhone}
+                    name="contactPhone"
+                    value={form.contactPhone || ''}
                     onChange={handleChange}
-                    className="w-full rounded-[12px] border border-stone-200 px-4 py-3 text-sm outline-none transition focus:border-brand-primary focus:ring-1 focus:ring-brand-primary"
+                    className="w-full rounded-[12px] border border-stone-200 px-4 py-3 text-sm outline-none transition focus:border-brand-primary"
                   />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-stone-700 mb-2">Currency</label>
-                  <select
-                    name="currency"
-                    value={settings.currency}
-                    onChange={handleChange}
-                    className="w-full rounded-[12px] border border-stone-200 px-4 py-3 text-sm outline-none transition focus:border-brand-primary focus:ring-1 focus:ring-brand-primary"
-                  >
-                    <option value="INR">Indian Rupee (₹)</option>
-                    <option value="USD">US Dollar ($)</option>
-                    <option value="EUR">Euro (€)</option>
-                  </select>
                 </div>
 
                 <div className="md:col-span-2">
                   <label className="block text-sm font-medium text-stone-700 mb-2">Store Address</label>
                   <textarea
-                    name="storeAddress"
-                    value={settings.storeAddress}
+                    name="contactAddress"
+                    value={form.contactAddress || ''}
                     onChange={handleChange}
-                    rows="3"
-                    className="w-full rounded-[12px] border border-stone-200 px-4 py-3 text-sm outline-none transition focus:border-brand-primary focus:ring-1 focus:ring-brand-primary resize-none"
+                    rows="2"
+                    className="w-full rounded-[12px] border border-stone-200 px-4 py-3 text-sm outline-none transition focus:border-brand-primary resize-none"
                   />
                 </div>
               </div>
             </div>
+          )}
 
-            <div className="border-t border-stone-200 pt-6">
-              <h2 className="text-xl font-semibold text-stone-950">Shipping & Taxes</h2>
-              <div className="mt-6 grid gap-4 md:grid-cols-2">
-                <div>
-                  <label className="block text-sm font-medium text-stone-700 mb-2">Shipping Cost (₹)</label>
-                  <input
-                    type="number"
-                    name="shippingCost"
-                    value={settings.shippingCost}
-                    onChange={handleChange}
-                    min="0"
-                    step="0.01"
-                    className="w-full rounded-[12px] border border-stone-200 px-4 py-3 text-sm outline-none transition focus:border-brand-primary focus:ring-1 focus:ring-brand-primary"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-stone-700 mb-2">Tax Rate (%)</label>
-                  <input
-                    type="number"
-                    name="taxRate"
-                    value={settings.taxRate}
-                    onChange={handleChange}
-                    min="0"
-                    max="100"
-                    step="0.01"
-                    className="w-full rounded-[12px] border border-stone-200 px-4 py-3 text-sm outline-none transition focus:border-brand-primary focus:ring-1 focus:ring-brand-primary"
-                  />
-                </div>
-              </div>
-            </div>
-
-            <div className="border-t border-stone-200 pt-6">
-              <h2 className="text-xl font-semibold text-stone-950">Store Status</h2>
-              <div className="mt-6 flex items-center gap-4">
-                <label className="flex items-center gap-3 cursor-pointer">
-                  <input
-                    type="checkbox"
-                    name="maintenanceMode"
-                    checked={settings.maintenanceMode}
-                    onChange={handleChange}
-                    className="w-4 h-4 rounded border-stone-300 text-brand-primary"
-                  />
-                  <span className="text-sm font-medium text-stone-700">Enable Maintenance Mode</span>
-                </label>
-                {settings.maintenanceMode && (
-                  <p className="text-xs text-stone-500">Store will show "Coming Soon" to customers</p>
-                )}
-              </div>
-            </div>
-
-            <div className="border-t border-stone-200 pt-6 flex flex-wrap gap-3">
-              <button
-                onClick={handleSave}
-                disabled={isSaving}
-                className="inline-flex items-center gap-2 rounded-full bg-brand-primary px-6 py-3 text-sm font-semibold text-white transition hover:-translate-y-0.5 hover:bg-brand-primary/90 disabled:opacity-50"
-              >
-                <FiSave size={16} />
-                {isSaving ? 'Saving...' : 'Save Settings'}
-              </button>
-              <button
-                onClick={handleReset}
-                className="inline-flex items-center gap-2 rounded-full border border-stone-200 px-6 py-3 text-sm font-semibold text-stone-700 transition hover:border-brand-primary hover:text-brand-primary"
-              >
-                <FiRefreshCw size={16} />
-                Reset
-              </button>
-            </div>
+          <div className="mt-8 border-t border-stone-200 pt-6 flex items-center gap-4">
+            <button
+              type="submit"
+              disabled={isSaving}
+              className="inline-flex items-center gap-2 rounded-full bg-brand-primary px-6 py-3 text-sm font-semibold text-white transition hover:bg-brand-primary/90 disabled:opacity-50"
+            >
+              <FiSave size={16} />
+              {isSaving ? 'Saving Changes...' : 'Save Settings Live'}
+            </button>
           </div>
-        </div>
-
-        <div className="grid gap-4 md:grid-cols-3">
-          <div className="rounded-[16px] border border-stone-200 bg-white p-6">
-            <h3 className="font-semibold text-stone-950">Database</h3>
-            <p className="mt-2 text-sm text-stone-600">PostgreSQL connected</p>
-            <div className="mt-3 inline-flex items-center gap-2 rounded-full bg-green-50 px-3 py-1">
-              <span className="h-2 w-2 rounded-full bg-green-600"></span>
-              <span className="text-xs font-medium text-green-700">Healthy</span>
-            </div>
-          </div>
-
-          <div className="rounded-[16px] border border-stone-200 bg-white p-6">
-            <h3 className="font-semibold text-stone-950">API Server</h3>
-            <p className="mt-2 text-sm text-stone-600">Node.js/Express</p>
-            <div className="mt-3 inline-flex items-center gap-2 rounded-full bg-green-50 px-3 py-1">
-              <span className="h-2 w-2 rounded-full bg-green-600"></span>
-              <span className="text-xs font-medium text-green-700">Running</span>
-            </div>
-          </div>
-
-          <div className="rounded-[16px] border border-stone-200 bg-white p-6">
-            <h3 className="font-semibold text-stone-950">Frontend</h3>
-            <p className="mt-2 text-sm text-stone-600">React + Vite</p>
-            <div className="mt-3 inline-flex items-center gap-2 rounded-full bg-green-50 px-3 py-1">
-              <span className="h-2 w-2 rounded-full bg-green-600"></span>
-              <span className="text-xs font-medium text-green-700">Active</span>
-            </div>
-          </div>
-        </div>
+        </form>
       </div>
     </AdminLayout>
   )
