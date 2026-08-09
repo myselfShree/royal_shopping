@@ -166,7 +166,7 @@ export const getProducts = async (req, res) => {
     const pageSize = Number(limit) || 12
     const skip = (pageNumber - 1) * pageSize
 
-    const [total, products] = await Promise.all([
+    let [total, products] = await Promise.all([
       prisma.product.count({ where }),
       prisma.product.findMany({
         where,
@@ -176,6 +176,31 @@ export const getProducts = async (req, res) => {
         take: pageSize,
       }),
     ])
+
+    if (total === 0 && !q && !category && !brand) {
+      for (const item of demoProducts) {
+        const slug = createSlug(item.title)
+        await prisma.product.upsert({
+          where: { slug },
+          update: {},
+          create: {
+            ...item,
+            slug,
+            category: buildCategoryConnect(item.category),
+          },
+        })
+      }
+      ;[total, products] = await Promise.all([
+        prisma.product.count({ where }),
+        prisma.product.findMany({
+          where,
+          include: { category: true },
+          orderBy: [{ createdAt: 'desc' }],
+          skip,
+          take: pageSize,
+        }),
+      ])
+    }
 
     res.json({
       products,

@@ -14,20 +14,13 @@ import { testPrismaConnection } from './prismaClient.js';
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-app.use(helmet());
-const allowedOrigins = [
-  process.env.CLIENT_URL,
-  'http://localhost:5173',
-  'http://127.0.0.1:5173',
-].filter(Boolean)
+app.use(helmet({ crossOriginResourcePolicy: { policy: 'cross-origin' } }));
 
 app.use(
   cors({
     origin: (origin, callback) => {
-      if (!origin || allowedOrigins.includes(origin) || /\.vercel\.app$/.test(origin)) {
-        return callback(null, true)
-      }
-      callback(new Error('Not allowed by CORS'))
+      // Allow all requesting origins dynamically for full access
+      return callback(null, origin || true)
     },
     credentials: true,
   }),
